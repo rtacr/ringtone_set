@@ -1,14 +1,50 @@
 # ringtone_set
 
-A new flutter plugin project.
+Flutter package for easily setting device's default ringtone or notification sound.
+
+> [!IMPORTANT]
+> Works only on Android
+
+[![pub package](https://img.shields.io/pub/v/ringtone_set.svg)](
+https://pub.dartlang.org/packages/ringtone_set)
+</a>
+<img src="https://img.shields.io/badge/platform-android%20-%23989898" />
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+Add these lines to **AndroidManifest.xml**. 
+```xml
+<manifest>
+...
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+...
+</manifest>
+```
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+Put your sounds into \<yourapp\>/assets/
+add them to your **pubspec.yaml**
+```yaml
+flutter:
+  assets:
+    - assets/music.mp3
+```
+
+
+```yaml
+dependencies:
+  ringtone_set: ^0.0.2
+```
+Import the package
+```Dart
+import 'package:ringtone_set/ringtone_set.dart';
+```
+Call the function
+```Dart
+RingtoneSet.setRingtone("music.mp3");
+```
+or
+```Dart
+RingtoneSet.setNotification("music.mp3");
+```
