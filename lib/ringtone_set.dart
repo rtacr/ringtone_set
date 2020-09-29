@@ -32,7 +32,7 @@ class RingtoneSet {
     
     final path = '${(await getTemporaryDirectory()).path}/$asset';
     final file = File(path);
-    final assetload = await rootBundle.load('assets/$asset');
+    final assetload = await rootBundle.load(asset);
     await file.writeAsBytes((assetload).buffer.asUint8List());
     
     final String result = await _channel
@@ -45,7 +45,7 @@ class RingtoneSet {
     
     final path = '${(await getTemporaryDirectory()).path}/$asset';
     final file = File(path);
-    final assetload = await rootBundle.load('assets/$asset');
+    final assetload = await rootBundle.load(asset);
     await file.writeAsBytes((assetload).buffer.asUint8List());
 
     final String result = await _channel
