@@ -15,7 +15,8 @@ class RingtoneSet {
   }
 
   Future<String> getPath(String asset) async {
-    final path = '${(await getTemporaryDirectory()).path}/$asset';
+    final path =
+        '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
     final file = File(path);
     await file.writeAsBytes((await loadAsset(asset)).buffer.asUint8List());
     return path;
@@ -39,7 +40,8 @@ class RingtoneSet {
   }
 
   static Future<String> setNotification(String asset) async {
-    final path = '${(await getTemporaryDirectory()).path}/$asset';
+    final path =
+        '${(await getTemporaryDirectory()).path}${asset.split('/').last}';
     final file = File(path);
     final assetload = await rootBundle.load(asset);
     await file.writeAsBytes((assetload).buffer.asUint8List());
