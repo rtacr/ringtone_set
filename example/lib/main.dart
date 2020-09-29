@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
                     onPressed: () async {
                       String result;
                       try {
-                        result = await RingtoneSet.setRingtone("h1.mp3");
+                        result = await RingtoneSet.setRingtone("assets/h1.mp3");
                       } on PlatformException {
                         result = 'Error';
                       }
@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
                     onPressed: () async {
                       String result;
                       try {
-                        result = await RingtoneSet.setNotification("h1.mp3");
+                        result = await RingtoneSet.setNotification("assets/h1.mp3");
                       } on PlatformException {
                         result = 'Error';
                       }
@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
                     onPressed: () async {
                       String result;
                       try {
-                        result = await RingtoneSet.setRingtone("untitled.mp3");
+                        result = await RingtoneSet.setRingtone("assets/untitled.mp3");
                       } on PlatformException {
                         result = 'Error';
                       }
@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
                       String result;
                       try {
                         result =
-                            await RingtoneSet.setNotification("untitled.mp3");
+                            await RingtoneSet.setNotification("assets/untitled.mp3");
                       } on PlatformException {
                         result = 'Error';
                       }
