@@ -78,7 +78,7 @@ class RingtoneSet {
     if (response.statusCode == 200) {
       await file.writeAsBytes(response.bodyBytes);
 
-      final String result = await setRingtoneFromFile(file);
+      final String result = await setNotificationFromFile(file);
 
       return result;
     } else {
@@ -89,6 +89,39 @@ class RingtoneSet {
   static Future<String> setNotificationFromFile(File file) async {
     final String result =
         await _channel.invokeMethod('setNotification', {"path": file.path});
+    return result;
+  }
+
+  static Future<String> setAlarmFromAsset(String asset) async {
+    final path =
+        '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
+    final file = File(path);
+    final assetload = await rootBundle.load(asset);
+    await file.writeAsBytes((assetload).buffer.asUint8List());
+
+    final String result = await setAlarmFromFile(file);
+    return result;
+  }
+
+  static Future<String> setAlarmFromNetwork(String url) async {
+    final path =
+        '${(await getTemporaryDirectory()).path}/${url.split('/').last}';
+    final file = File(path);
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      await file.writeAsBytes(response.bodyBytes);
+
+      final String result = await setAlarmFromFile(file);
+
+      return result;
+    } else {
+      return "failure";
+    }
+  }
+
+  static Future<String> setAlarmFromFile(File file) async {
+    final String result =
+    await _channel.invokeMethod('setAlarm', {"path": file.path});
     return result;
   }
 }

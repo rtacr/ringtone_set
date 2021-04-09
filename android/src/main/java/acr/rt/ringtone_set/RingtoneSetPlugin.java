@@ -87,7 +87,7 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void setThings(String path, boolean isNotif){
+    private void setThings(String path, boolean isRingt, boolean isNotif, boolean isAlarm){
         File file = new File(path);
         checkSystemWritePermission();
         String s = path;
@@ -99,9 +99,9 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
 //            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
             values.put(MediaStore.MediaColumns.SIZE, mFile.length());
             values.put(MediaStore.Audio.Media.ARTIST, "Kolpaçino Sesleri");
-            values.put(MediaStore.Audio.Media.IS_RINGTONE, !isNotif);
+            values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
             values.put(MediaStore.Audio.Media.IS_NOTIFICATION, isNotif);
-            values.put(MediaStore.Audio.Media.IS_ALARM, true);
+            values.put(MediaStore.Audio.Media.IS_ALARM, isAlarm);
             values.put(MediaStore.Audio.Media.IS_MUSIC, false);
 
             Uri newUri = mContext.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
@@ -126,9 +126,15 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
                 RingtoneManager.setActualDefaultRingtoneUri(
                         mContext, RingtoneManager.TYPE_NOTIFICATION,
                         newUri);
-            }else{
+            }
+            if(isRingt){
                 RingtoneManager.setActualDefaultRingtoneUri(
                         mContext, RingtoneManager.TYPE_RINGTONE,
+                        newUri);
+            }
+            if(isAlarm){
+                RingtoneManager.setActualDefaultRingtoneUri(
+                        mContext, RingtoneManager.TYPE_ALARM,
                         newUri);
             }
         }
@@ -142,13 +148,19 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         }
         if (call.method.equals("setRingtone")) {
             String path = call.argument("path");
-            setThings(path, false);
+            setThings(path, true, false, false);
 
             result.success("success");
             return;
         }else  if (call.method.equals("setNotification")) {
             String path = call.argument("path");
-            setThings(path, true);
+            setThings(path, false, true, false);
+
+            result.success("success");
+            return;
+        }else  if (call.method.equals("setAlarm")) {
+            String path = call.argument("path");
+            setThings(path, false, false, true);
 
             result.success("success");
             return;
