@@ -24,7 +24,7 @@ class RingtoneSet {
     return version;
   }
 
-  static Future<String> setRingtoneFromAsset(String asset) async {
+  static Future<String> setRingtone(String asset) async {
     final path =
         '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
     final file = File(path);
@@ -59,7 +59,7 @@ class RingtoneSet {
     return result;
   }
 
-  static Future<String> setNotificationFromAsset(String asset) async {
+  static Future<String> setNotification(String asset) async {
     final path =
         '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
     final file = File(path);
@@ -92,7 +92,7 @@ class RingtoneSet {
     return result;
   }
 
-  static Future<String> setAlarmFromAsset(String asset) async {
+  static Future<String> setAlarm(String asset) async {
     final path =
         '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
     final file = File(path);
