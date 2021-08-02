@@ -31,6 +31,7 @@ import android.content.ContentValues;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.webkit.MimeTypeMap;
 
 /**
  * RingtoneSetPlugin
@@ -86,6 +87,26 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         return retVal;
     }
 
+    public static String getMIMEType(String url) {
+        String mType = null;
+        String fileExtension = "";
+        try {
+            int i = url.lastIndexOf('.');
+            if (i > 0) {
+                fileExtension = url.substring(i + 1);
+            }
+            if (fileExtension != "") {
+                mType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+            }
+        } catch (Exception ignored) {
+
+        }
+        if (mType == null) {
+            return "audio/*";
+        }
+        return mType;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void setThings(String path, boolean isRingt, boolean isNotif, boolean isAlarm){
         File file = new File(path);
@@ -96,7 +117,7 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.DATA, mFile.getAbsolutePath());
             values.put(MediaStore.MediaColumns.TITLE, "KolpacinoRingtone");
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
+            values.put(MediaStore.MediaColumns.MIME_TYPE, getMIMEType(path));
             values.put(MediaStore.MediaColumns.SIZE, mFile.length());
             values.put(MediaStore.Audio.Media.ARTIST, "Kolpaçino Sesleri");
             values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
