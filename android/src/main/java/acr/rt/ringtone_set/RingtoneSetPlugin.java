@@ -108,55 +108,95 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void setThings(String path, boolean isRingt, boolean isNotif, boolean isAlarm){
-        File file = new File(path);
+    private void setThings(String path, boolean isRingt, boolean isNotif, boolean isAlarm) {
         checkSystemWritePermission();
         String s = path;
         File mFile = new File(s);  // set File from path
-        if (mFile.exists()) {      // file.exists
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DATA, mFile.getAbsolutePath());
-            values.put(MediaStore.MediaColumns.TITLE, "KolpacinoRingtone");
-            values.put(MediaStore.MediaColumns.MIME_TYPE, getMIMEType(path));
-            values.put(MediaStore.MediaColumns.SIZE, mFile.length());
-            values.put(MediaStore.Audio.Media.ARTIST, "Kolpaçino Sesleri");
-            values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
-            values.put(MediaStore.Audio.Media.IS_NOTIFICATION, isNotif);
-            values.put(MediaStore.Audio.Media.IS_ALARM, isAlarm);
-            values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+        if (mFile.exists()) {
+            // Android 10 or newer
+            if(android.os.Build.VERSION.SDK_INT > 28) {// file.exists
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DATA, mFile.getAbsolutePath());
+                values.put(MediaStore.MediaColumns.TITLE, "Custom ringtone");
+                values.put(MediaStore.MediaColumns.MIME_TYPE, getMIMEType(path));
+                values.put(MediaStore.MediaColumns.SIZE, mFile.length());
+                values.put(MediaStore.Audio.Media.ARTIST, "Ringtone app");
+                values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
+                values.put(MediaStore.Audio.Media.IS_NOTIFICATION, isNotif);
+                values.put(MediaStore.Audio.Media.IS_ALARM, isAlarm);
+                values.put(MediaStore.Audio.Media.IS_MUSIC, false);
 
-            Uri newUri = mContext.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
+                Uri newUri = mContext.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
 
-            try (OutputStream os = mContext.getContentResolver().openOutputStream(newUri)) {
-                int size = (int) mFile.length();
-                byte[] bytes = new byte[size];
-                try {
-                    BufferedInputStream buf = new BufferedInputStream(new FileInputStream(mFile));
-                    buf.read(bytes, 0, bytes.length);
-                    buf.close();
+                try (OutputStream os = mContext.getContentResolver().openOutputStream(newUri)) {
+                    int size = (int) mFile.length();
+                    byte[] bytes = new byte[size];
+                    try {
+                        BufferedInputStream buf = new BufferedInputStream(new FileInputStream(mFile));
+                        buf.read(bytes, 0, bytes.length);
+                        buf.close();
 
-                    os.write(bytes);
-                    os.close();
-                    os.flush();
-                } catch (IOException e) {
+                        os.write(bytes);
+                        os.close();
+                        os.flush();
+                    } catch (IOException e) {
+                    }
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
                 }
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
-            }
-            if(isNotif) {
-                RingtoneManager.setActualDefaultRingtoneUri(
-                        mContext, RingtoneManager.TYPE_NOTIFICATION,
-                        newUri);
-            }
-            if(isRingt){
-                RingtoneManager.setActualDefaultRingtoneUri(
-                        mContext, RingtoneManager.TYPE_RINGTONE,
-                        newUri);
-            }
-            if(isAlarm){
-                RingtoneManager.setActualDefaultRingtoneUri(
-                        mContext, RingtoneManager.TYPE_ALARM,
-                        newUri);
+                if (isNotif) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_NOTIFICATION,
+                            newUri);
+                }
+                if (isRingt) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_RINGTONE,
+                            newUri);
+                }
+                if (isAlarm) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_ALARM,
+                            newUri);
+                }
+            } else {
+                // Android 9 or older
+                final String absolutePath = mFile.getAbsolutePath();
+
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DATA, absolutePath);
+                values.put(MediaStore.MediaColumns.TITLE, "Custom ringtone");
+                values.put(MediaStore.MediaColumns.SIZE, mFile.length());
+                values.put(MediaStore.Audio.Media.ARTIST, "Ringtone app");
+                values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
+                values.put(MediaStore.Audio.Media.IS_NOTIFICATION, isNotif);
+                values.put(MediaStore.Audio.Media.IS_ALARM, isAlarm);
+                values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+
+                // insert it into the database
+                Uri uri = MediaStore.Audio.Media.getContentUriForPath(absolutePath);
+
+                // delete the old one first
+                mContext.getContentResolver().delete(uri, MediaStore.MediaColumns.DATA + "=\"" + absolutePath + "\"", null);
+
+                // insert a new record
+                Uri newUri = mContext.getContentResolver().insert(uri, values);
+
+                if (isNotif) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_NOTIFICATION,
+                            newUri);
+                }
+                if (isRingt) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_RINGTONE,
+                            newUri);
+                }
+                if (isAlarm) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_ALARM,
+                            newUri);
+                }
             }
         }
     }
