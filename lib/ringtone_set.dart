@@ -12,6 +12,13 @@ class RingtoneSet {
     return version;
   }
 
+  /// Getter that shows if the `WRITE_SETTINGS` permission is granted.
+  ///
+  /// On Android 5.1(SDK 22) and older always returns `true`.
+  static Future<bool> get isWriteSettingsGranted {
+    return _channel.invokeMethod('isWriteGranted');
+  }
+
   static Future<String> setRingtone(String asset) async {
     return setFromAsset(asset: asset, action: 'setRingtone');
   }

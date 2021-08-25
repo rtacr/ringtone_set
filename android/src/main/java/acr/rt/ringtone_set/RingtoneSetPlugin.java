@@ -66,25 +66,25 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         channel.setMethodCallHandler(this);
     }
 
-    private boolean checkSystemWritePermission() {
+    private boolean isSystemWritePermissionGranted() {
         boolean retVal = true;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             retVal = Settings.System.canWrite(mContext);
-
-            if (retVal) {
-                //do your code
-            } else {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                    String both = "package:" + mContext.getPackageName();
-                    intent.setData(Uri.parse(both));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    mContext.startActivity(intent);
-                } else {
-                }
-            }
         }
         return retVal;
+    }
+
+    private void requestSystemWritePermission() {
+        boolean retVal = isSystemWritePermissionGranted();
+        if (!retVal) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                String both = "package:" + mContext.getPackageName();
+                intent.setData(Uri.parse(both));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            }
+        }
     }
 
     public static String getMIMEType(String url) {
@@ -109,12 +109,12 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void setThings(String path, boolean isRingt, boolean isNotif, boolean isAlarm) {
-        checkSystemWritePermission();
+        requestSystemWritePermission();
         String s = path;
         File mFile = new File(s);  // set File from path
         if (mFile.exists()) {
             // Android 10 or newer
-            if(android.os.Build.VERSION.SDK_INT > 28) {// file.exists
+            if (android.os.Build.VERSION.SDK_INT > 28) {// file.exists
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.MediaColumns.DATA, mFile.getAbsolutePath());
                 values.put(MediaStore.MediaColumns.TITLE, "Custom ringtone");
@@ -213,18 +213,21 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
 
             result.success("success");
             return;
-        }else  if (call.method.equals("setNotification")) {
+        } else if (call.method.equals("setNotification")) {
             String path = call.argument("path");
             setThings(path, false, true, false);
 
             result.success("success");
             return;
-        }else  if (call.method.equals("setAlarm")) {
+        } else if (call.method.equals("setAlarm")) {
             String path = call.argument("path");
             setThings(path, false, false, true);
 
             result.success("success");
             return;
+        } else if (call.method.equals("isWriteGranted")) {
+            boolean granted = isSystemWritePermissionGranted();
+            result.success(granted);
         }
 
         result.notImplemented();
