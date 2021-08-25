@@ -7,6 +7,9 @@ import 'package:path_provider/path_provider.dart';
 
 const MethodChannel _channel = const MethodChannel('ringtone_set');
 
+/// Sets [action] from asset path.
+///
+/// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
 Future<String> setFromAsset({
   @required String asset,
   @required String action,
@@ -22,6 +25,9 @@ Future<String> setFromAsset({
   return result;
 }
 
+/// Sets [action] from network URL.
+///
+/// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
 Future<String> setFromNetwork({
   @required String url,
   @required String action,
@@ -40,6 +46,9 @@ Future<String> setFromNetwork({
   }
 }
 
+/// Sets [action] from file.
+///
+/// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
 Future<String> setFromFile({
   @required File file,
   @required String action,
