@@ -28,7 +28,7 @@ class RingtoneSet {
     return setFromAsset(asset: asset, action: 'setRingtone');
   }
 
-  /// Sets ringtone from network URL.\
+  /// Sets ringtone from network URL.
   static Future<bool> setRingtoneFromNetwork(String url) async {
     return setFromNetwork(url: url, action: 'setRingtone');
   }
