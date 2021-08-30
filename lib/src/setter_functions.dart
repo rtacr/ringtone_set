@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -11,8 +10,8 @@ const MethodChannel _channel = const MethodChannel('ringtone_set');
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
 Future<String> setFromAsset({
-  @required String asset,
-  @required String action,
+  required String asset,
+  required String action,
 }) async {
   final path =
       '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
@@ -29,8 +28,8 @@ Future<String> setFromAsset({
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
 Future<String> setFromNetwork({
-  @required String url,
-  @required String action,
+  required String url,
+  required String action,
 }) async {
   final path = '${(await getTemporaryDirectory()).path}/${url.split('/').last}';
   final file = File(path);
@@ -50,8 +49,8 @@ Future<String> setFromNetwork({
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
 Future<String> setFromFile({
-  @required File file,
-  @required String action,
+  required File file,
+  required String action,
 }) async {
   final String result =
       await _channel.invokeMethod(action, {"path": file.path});

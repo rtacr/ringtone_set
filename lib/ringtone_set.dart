@@ -18,8 +18,9 @@ class RingtoneSet {
   ///
   /// Returns `true` if the permission has been granted.
   /// On Android 5.1(SDK 22) and older always returns `true`.
-  static Future<bool> get isWriteSettingsGranted {
-    return _channel.invokeMethod('isWriteGranted');
+  static Future<bool> get isWriteSettingsGranted async {
+    final bool granted = await _channel.invokeMethod('isWriteGranted');
+    return granted;
   }
 
   /// Sets ringtone from asset.
