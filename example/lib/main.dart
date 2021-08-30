@@ -41,51 +41,71 @@ class _MyAppState extends State<MyApp> {
               children: <Widget>[
                 FlatButton(
                     onPressed: () async {
-                      String result;
+                      bool success = false;
                       try {
-                        result = await RingtoneSet.setRingtone("assets/h1.mp3");
+                        success = await RingtoneSet.setRingtone("assets/h1.mp3");
                       } on PlatformException {
-                        result = 'Error';
+                        success = false;
                       }
-                      var snackbar = SnackBar(content: Text("$result"));
-                      Scaffold.of(context).showSnackBar(snackbar);
+                      var snackBar;
+                      if (success) {
+                        snackBar = SnackBar(content: Text("Ringtone set successfully!"));
+                      } else {
+                        snackBar = SnackBar(content: Text("Error"));
+                      }
+                      Scaffold.of(context).showSnackBar(snackBar);
                     },
                     child: Text("Hey Ringtone")),
                 FlatButton(
                     onPressed: () async {
-                      String result;
+                      bool success = false;
                       try {
-                        result = await RingtoneSet.setNotification("assets/h1.mp3");
+                        success = await RingtoneSet.setNotification("assets/h1.mp3");
                       } on PlatformException {
-                        result = 'Error';
+                        success = false;
                       }
-                      var snackbar = SnackBar(content: Text("$result"));
-                      Scaffold.of(context).showSnackBar(snackbar);
+                      var snackBar;
+                      if (success) {
+                        snackBar = SnackBar(content: Text("Notification set successfully!"));
+                      } else {
+                        snackBar = SnackBar(content: Text("Error"));
+                      }
+                      Scaffold.of(context).showSnackBar(snackBar);
                     },
                     child: Text("Hey Notification")),
                 FlatButton(
                     onPressed: () async {
-                      String result;
+                      bool success = false;
                       try {
-                        result = await RingtoneSet.setRingtone("assets/untitled.mp3");
+                        success = await RingtoneSet.setRingtone("assets/untitled.mp3");
                       } on PlatformException {
-                        result = 'Error';
+                        success = false;
                       }
-                      var snackbar = SnackBar(content: Text("$result"));
-                      Scaffold.of(context).showSnackBar(snackbar);
+                      var snackBar;
+                      if (success) {
+                        snackBar = SnackBar(content: Text("Ringtone set successfully!"));
+                      } else {
+                        snackBar = SnackBar(content: Text("Error"));
+                      }
+                      Scaffold.of(context).showSnackBar(snackBar);
                     },
                     child: Text("Untitled Ringtone")),
                 FlatButton(
                     onPressed: () async {
-                      String result;
+                      bool success = false;
                       try {
-                        result =
+                        success =
                             await RingtoneSet.setNotification("assets/untitled.mp3");
                       } on PlatformException {
-                        result = 'Error';
+                        success = false;
                       }
-                      var snackbar = SnackBar(content: Text("$result"));
-                      Scaffold.of(context).showSnackBar(snackbar);
+                      var snackBar;
+                      if (success) {
+                        snackBar = SnackBar(content: Text("Notification set successfully!"));
+                      } else {
+                        snackBar = SnackBar(content: Text("Error"));
+                      }
+                      Scaffold.of(context).showSnackBar(snackBar);
                     },
                     child: Text("Untitled Notification")),
               ],

@@ -9,7 +9,7 @@ const MethodChannel _channel = const MethodChannel('ringtone_set');
 /// Sets [action] from asset path.
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
-Future<String> setFromAsset({
+Future<bool> setFromAsset({
   required String asset,
   required String action,
 }) async {
@@ -19,15 +19,14 @@ Future<String> setFromAsset({
   final loadedAsset = await rootBundle.load(asset);
   await file.writeAsBytes((loadedAsset).buffer.asUint8List());
 
-  final String result =
-      await _channel.invokeMethod(action, {"path": file.path});
+  final bool result = await _channel.invokeMethod(action, {"path": file.path});
   return result;
 }
 
 /// Sets [action] from network URL.
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
-Future<String> setFromNetwork({
+Future<bool> setFromNetwork({
   required String url,
   required String action,
 }) async {
@@ -37,23 +36,24 @@ Future<String> setFromNetwork({
   if (response.statusCode == 200) {
     await file.writeAsBytes(response.bodyBytes);
 
-    final String result = await setFromFile(file: file, action: action);
+    final bool result = await setFromFile(file: file, action: action);
 
     return result;
   } else {
-    return "failure";
+    throw Exception(
+      "Network error. Code ${response.statusCode}, ${response.reasonPhrase}",
+    );
   }
 }
 
 /// Sets [action] from file.
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
-Future<String> setFromFile({
+Future<bool> setFromFile({
   required File file,
   required String action,
 }) async {
-  final String result =
-      await _channel.invokeMethod(action, {"path": file.path});
+  final bool result = await _channel.invokeMethod(action, {"path": file.path});
 
   return result;
 }

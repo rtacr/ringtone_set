@@ -211,19 +211,19 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
             String path = call.argument("path");
             setThings(path, true, false, false);
 
-            result.success("success");
+            result.success(true);
             return;
         } else if (call.method.equals("setNotification")) {
             String path = call.argument("path");
             setThings(path, false, true, false);
 
-            result.success("success");
+            result.success(true);
             return;
         } else if (call.method.equals("setAlarm")) {
             String path = call.argument("path");
             setThings(path, false, false, true);
 
-            result.success("success");
+            result.success(true);
             return;
         } else if (call.method.equals("isWriteGranted")) {
             boolean granted = isSystemWritePermissionGranted();

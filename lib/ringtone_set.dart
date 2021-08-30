@@ -24,47 +24,47 @@ class RingtoneSet {
   }
 
   /// Sets ringtone from asset.
-  static Future<String> setRingtone(String asset) async {
+  static Future<bool> setRingtone(String asset) async {
     return setFromAsset(asset: asset, action: 'setRingtone');
   }
 
-  /// Sets ringtone from network URL.
-  static Future<String> setRingtoneFromNetwork(String url) async {
+  /// Sets ringtone from network URL.\
+  static Future<bool> setRingtoneFromNetwork(String url) async {
     return setFromNetwork(url: url, action: 'setRingtone');
   }
 
   /// Sets ringtone from file.
-  static Future<String> setRingtoneFromFile(File file) async {
+  static Future<bool> setRingtoneFromFile(File file) async {
     return setFromFile(file: file, action: 'setRingtone');
   }
 
   /// Sets notification from asset path.
-  static Future<String> setNotification(String asset) async {
+  static Future<bool> setNotification(String asset) async {
     return setFromAsset(asset: asset, action: 'setNotification');
   }
 
   /// Sets notification from network URL.
-  static Future<String> setNotificationFromNetwork(String url) async {
+  static Future<bool> setNotificationFromNetwork(String url) async {
     return setFromNetwork(url: url, action: 'setNotification');
   }
 
   /// Sets notification from file.
-  static Future<String> setNotificationFromFile(File file) async {
+  static Future<bool> setNotificationFromFile(File file) async {
     return setFromFile(file: file, action: 'setNotification');
   }
 
   /// Sets alarm from asset path.
-  static Future<String> setAlarm(String asset) async {
+  static Future<bool> setAlarm(String asset) async {
     return setFromAsset(asset: asset, action: 'setAlarm');
   }
 
   /// Sets alarm from network URL.
-  static Future<String> setAlarmFromNetwork(String url) async {
+  static Future<bool> setAlarmFromNetwork(String url) async {
     return setFromNetwork(url: url, action: 'setAlarm');
   }
 
   /// Sets alarm from file.
-  static Future<String> setAlarmFromFile(File file) async {
+  static Future<bool> setAlarmFromFile(File file) async {
     return setFromFile(file: file, action: 'setAlarm');
   }
 }
