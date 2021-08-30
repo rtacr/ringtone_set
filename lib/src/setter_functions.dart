@@ -16,8 +16,8 @@ Future<String> setFromAsset({
   final path =
       '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
   final file = File(path);
-  final assetload = await rootBundle.load(asset);
-  await file.writeAsBytes((assetload).buffer.asUint8List());
+  final loadedAsset = await rootBundle.load(asset);
+  await file.writeAsBytes((loadedAsset).buffer.asUint8List());
 
   final String result =
       await _channel.invokeMethod(action, {"path": file.path});
