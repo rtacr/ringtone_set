@@ -1,6 +1,6 @@
 # ringtone_set
 
-Flutter package for easily setting device's default ringtone or notification sound.
+Flutter package for easily setting device's default ringtone, notification sound and alarm.
 
 > [!IMPORTANT]
 > Works only on Android
@@ -23,6 +23,8 @@ Add these lines to **AndroidManifest.xml**.
 </manifest>
 ```
 
+### Set from assets
+
 Put your sounds into \<yourapp\>/assets/
 add them to your **pubspec.yaml**
 ```yaml
@@ -42,9 +44,41 @@ import 'package:ringtone_set/ringtone_set.dart';
 ```
 Call the function
 ```Dart
-RingtoneSet.setRingtone("music.mp3");
+RingtoneSet.setRingtone("assets/music.mp3");
 ```
 or
 ```Dart
-RingtoneSet.setNotification("music.mp3");
+RingtoneSet.setNotification("assets/music.mp3");
+```
+or
+```Dart
+RingtoneSet.setAlarm("assets/music.mp3");
+```
+
+### Set from Network
+You can also set ringtone from network URL:
+
+```Dart
+RingtoneSet.setRingtoneFromNetwork("https://example.com/music.mp3");
+```
+or
+```Dart
+RingtoneSet.setNotificationFromNetwork("https://example.com/music.mp3");
+```
+or
+```Dart
+RingtoneSet.setAlarmFromNetwork("https://example.com/music.mp3");
+```
+
+### Set from File
+Finally, you can set ringtone from a `File` object as well:
+
+```Dart
+final File ringtoneFile = File("music.mp3");
+
+RingtoneSet.setRingtoneFromFile(ringtoneFile);
+
+RingtoneSet.setNotificationFromFile(ringtoneFile);
+
+RingtoneSet.setAlarmFromFile(ringtoneFile);
 ```

@@ -31,6 +31,7 @@ import android.content.ContentValues;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.webkit.MimeTypeMap;
 
 /**
  * RingtoneSetPlugin
@@ -65,71 +66,137 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         channel.setMethodCallHandler(this);
     }
 
-    private boolean checkSystemWritePermission() {
+    private boolean isSystemWritePermissionGranted() {
         boolean retVal = true;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             retVal = Settings.System.canWrite(mContext);
-
-            if (retVal) {
-                //do your code
-            } else {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                    String both = "package:" + mContext.getPackageName();
-                    intent.setData(Uri.parse(both));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    mContext.startActivity(intent);
-                } else {
-                }
-            }
         }
         return retVal;
     }
 
+    private void requestSystemWritePermission() {
+        boolean retVal = isSystemWritePermissionGranted();
+        if (!retVal) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                String both = "package:" + mContext.getPackageName();
+                intent.setData(Uri.parse(both));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            }
+        }
+    }
+
+    public static String getMIMEType(String url) {
+        String mType = null;
+        String fileExtension = "";
+        try {
+            int i = url.lastIndexOf('.');
+            if (i > 0) {
+                fileExtension = url.substring(i + 1);
+            }
+            if (fileExtension != "") {
+                mType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+            }
+        } catch (Exception ignored) {
+
+        }
+        if (mType == null) {
+            return "audio/*";
+        }
+        return mType;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void setThings(String path, boolean isNotif){
-        File file = new File(path);
-        checkSystemWritePermission();
+    private void setThings(String path, boolean isRingt, boolean isNotif, boolean isAlarm) {
+        requestSystemWritePermission();
         String s = path;
         File mFile = new File(s);  // set File from path
-        if (mFile.exists()) {      // file.exists
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DATA, mFile.getAbsolutePath());
-            values.put(MediaStore.MediaColumns.TITLE, "KolpacinoRingtone");
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
-            values.put(MediaStore.MediaColumns.SIZE, mFile.length());
-            values.put(MediaStore.Audio.Media.ARTIST, "Kolpaçino Sesleri");
-            values.put(MediaStore.Audio.Media.IS_RINGTONE, !isNotif);
-            values.put(MediaStore.Audio.Media.IS_NOTIFICATION, isNotif);
-            values.put(MediaStore.Audio.Media.IS_ALARM, true);
-            values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+        if (mFile.exists()) {
+            // Android 10 or newer
+            if (android.os.Build.VERSION.SDK_INT > 28) {// file.exists
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DATA, mFile.getAbsolutePath());
+                values.put(MediaStore.MediaColumns.TITLE, "Custom ringtone");
+                values.put(MediaStore.MediaColumns.MIME_TYPE, getMIMEType(path));
+                values.put(MediaStore.MediaColumns.SIZE, mFile.length());
+                values.put(MediaStore.Audio.Media.ARTIST, "Ringtone app");
+                values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
+                values.put(MediaStore.Audio.Media.IS_NOTIFICATION, isNotif);
+                values.put(MediaStore.Audio.Media.IS_ALARM, isAlarm);
+                values.put(MediaStore.Audio.Media.IS_MUSIC, false);
 
-            Uri newUri = mContext.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
+                Uri newUri = mContext.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
 
-            try (OutputStream os = mContext.getContentResolver().openOutputStream(newUri)) {
-                int size = (int) mFile.length();
-                byte[] bytes = new byte[size];
-                try {
-                    BufferedInputStream buf = new BufferedInputStream(new FileInputStream(mFile));
-                    buf.read(bytes, 0, bytes.length);
-                    buf.close();
+                try (OutputStream os = mContext.getContentResolver().openOutputStream(newUri)) {
+                    int size = (int) mFile.length();
+                    byte[] bytes = new byte[size];
+                    try {
+                        BufferedInputStream buf = new BufferedInputStream(new FileInputStream(mFile));
+                        buf.read(bytes, 0, bytes.length);
+                        buf.close();
 
-                    os.write(bytes);
-                    os.close();
-                    os.flush();
-                } catch (IOException e) {
+                        os.write(bytes);
+                        os.close();
+                        os.flush();
+                    } catch (IOException e) {
+                    }
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
                 }
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
-            }
-            if(isNotif) {
-                RingtoneManager.setActualDefaultRingtoneUri(
-                        mContext, RingtoneManager.TYPE_NOTIFICATION,
-                        newUri);
-            }else{
-                RingtoneManager.setActualDefaultRingtoneUri(
-                        mContext, RingtoneManager.TYPE_RINGTONE,
-                        newUri);
+                if (isNotif) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_NOTIFICATION,
+                            newUri);
+                }
+                if (isRingt) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_RINGTONE,
+                            newUri);
+                }
+                if (isAlarm) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_ALARM,
+                            newUri);
+                }
+            } else {
+                // Android 9 or older
+                final String absolutePath = mFile.getAbsolutePath();
+
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DATA, absolutePath);
+                values.put(MediaStore.MediaColumns.TITLE, "Custom ringtone");
+                values.put(MediaStore.MediaColumns.SIZE, mFile.length());
+                values.put(MediaStore.Audio.Media.ARTIST, "Ringtone app");
+                values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
+                values.put(MediaStore.Audio.Media.IS_NOTIFICATION, isNotif);
+                values.put(MediaStore.Audio.Media.IS_ALARM, isAlarm);
+                values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+
+                // insert it into the database
+                Uri uri = MediaStore.Audio.Media.getContentUriForPath(absolutePath);
+
+                // delete the old one first
+                mContext.getContentResolver().delete(uri, MediaStore.MediaColumns.DATA + "=\"" + absolutePath + "\"", null);
+
+                // insert a new record
+                Uri newUri = mContext.getContentResolver().insert(uri, values);
+
+                if (isNotif) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_NOTIFICATION,
+                            newUri);
+                }
+                if (isRingt) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_RINGTONE,
+                            newUri);
+                }
+                if (isAlarm) {
+                    RingtoneManager.setActualDefaultRingtoneUri(
+                            mContext, RingtoneManager.TYPE_ALARM,
+                            newUri);
+                }
             }
         }
     }
@@ -142,16 +209,25 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         }
         if (call.method.equals("setRingtone")) {
             String path = call.argument("path");
-            setThings(path, false);
+            setThings(path, true, false, false);
 
-            result.success("success");
+            result.success(true);
             return;
-        }else  if (call.method.equals("setNotification")) {
+        } else if (call.method.equals("setNotification")) {
             String path = call.argument("path");
-            setThings(path, true);
+            setThings(path, false, true, false);
 
-            result.success("success");
+            result.success(true);
             return;
+        } else if (call.method.equals("setAlarm")) {
+            String path = call.argument("path");
+            setThings(path, false, false, true);
+
+            result.success(true);
+            return;
+        } else if (call.method.equals("isWriteGranted")) {
+            boolean granted = isSystemWritePermissionGranted();
+            result.success(granted);
         }
 
         result.notImplemented();

@@ -1,53 +1,70 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:ringtone_set/src/setter_functions.dart';
 
-import 'package:flutter/services.dart';
-
+/// A class for setting ringtones, notifications, alarms.
 class RingtoneSet {
   static const MethodChannel _channel = const MethodChannel('ringtone_set');
 
-  Future<ByteData> loadAsset(String name) async {
-    return await rootBundle.load('assets/$name');
-  }
-
-  Future<String> getPath(String asset) async {
-    final path = '${(await getTemporaryDirectory()).path}/$asset';
-    final file = File(path);
-    await file.writeAsBytes((await loadAsset(asset)).buffer.asUint8List());
-    return path;
-  }
-
+  /// Android SDK version code.
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
 
-  static Future<String> setRingtone(String asset) async {
-    final path =
-        '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
-    final file = File(path);
-    final assetload = await rootBundle.load(asset);
-    await file.writeAsBytes((assetload).buffer.asUint8List());
-
-    final String result =
-        await _channel.invokeMethod('setRingtone', {"path": path});
-
-    return result;
+  /// Status of the `WRITE_SETTINGS` permission.
+  ///
+  /// Returns `true` if the permission has been granted.
+  /// On Android 5.1(SDK 22) and older always returns `true`.
+  static Future<bool> get isWriteSettingsGranted async {
+    final bool granted = await _channel.invokeMethod('isWriteGranted');
+    return granted;
   }
 
-  static Future<String> setNotification(String asset) async {
-    final path =
-        '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
-    final file = File(path);
-    final assetload = await rootBundle.load(asset);
-    await file.writeAsBytes((assetload).buffer.asUint8List());
+  /// Sets ringtone from asset.
+  static Future<bool> setRingtone(String asset) async {
+    return setFromAsset(asset: asset, action: 'setRingtone');
+  }
 
-    final String result =
-        await _channel.invokeMethod('setNotification', {"path": path});
-    return result;
+  /// Sets ringtone from network URL.
+  static Future<bool> setRingtoneFromNetwork(String url) async {
+    return setFromNetwork(url: url, action: 'setRingtone');
+  }
+
+  /// Sets ringtone from file.
+  static Future<bool> setRingtoneFromFile(File file) async {
+    return setFromFile(file: file, action: 'setRingtone');
+  }
+
+  /// Sets notification from asset path.
+  static Future<bool> setNotification(String asset) async {
+    return setFromAsset(asset: asset, action: 'setNotification');
+  }
+
+  /// Sets notification from network URL.
+  static Future<bool> setNotificationFromNetwork(String url) async {
+    return setFromNetwork(url: url, action: 'setNotification');
+  }
+
+  /// Sets notification from file.
+  static Future<bool> setNotificationFromFile(File file) async {
+    return setFromFile(file: file, action: 'setNotification');
+  }
+
+  /// Sets alarm from asset path.
+  static Future<bool> setAlarm(String asset) async {
+    return setFromAsset(asset: asset, action: 'setAlarm');
+  }
+
+  /// Sets alarm from network URL.
+  static Future<bool> setAlarmFromNetwork(String url) async {
+    return setFromNetwork(url: url, action: 'setAlarm');
+  }
+
+  /// Sets alarm from file.
+  static Future<bool> setAlarmFromFile(File file) async {
+    return setFromFile(file: file, action: 'setAlarm');
   }
 }
