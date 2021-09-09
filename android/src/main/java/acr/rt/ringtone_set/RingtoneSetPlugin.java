@@ -102,7 +102,7 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
 
         }
         if (mType == null) {
-            return "audio/*";
+            return "audio/mp3";
         }
         return mType;
     }
