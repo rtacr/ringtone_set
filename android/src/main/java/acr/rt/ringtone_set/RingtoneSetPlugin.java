@@ -87,7 +87,7 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         }
     }
 
-    public static String getMIMEType(String url) {
+    private static String getMIMEType(String url, String downloadedMimeType) {
         String mType = null;
         String fileExtension = "";
         try {
@@ -102,13 +102,13 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
 
         }
         if (mType == null) {
-            return "audio/mp3";
+            return java.util.Objects.requireNonNullElse(downloadedMimeType, "audio/mp3");
         }
         return mType;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void setThings(String path, boolean isRingt, boolean isNotif, boolean isAlarm) {
+    private void setThings(String path, String downloadedMimeType, boolean isRingt, boolean isNotif, boolean isAlarm) {
         requestSystemWritePermission();
         String s = path;
         File mFile = new File(s);  // set File from path
@@ -118,7 +118,7 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.MediaColumns.DATA, mFile.getAbsolutePath());
                 values.put(MediaStore.MediaColumns.TITLE, "Custom ringtone");
-                values.put(MediaStore.MediaColumns.MIME_TYPE, getMIMEType(path));
+                values.put(MediaStore.MediaColumns.MIME_TYPE, getMIMEType(path, downloadedMimeType));
                 values.put(MediaStore.MediaColumns.SIZE, mFile.length());
                 values.put(MediaStore.Audio.Media.ARTIST, "Ringtone app");
                 values.put(MediaStore.Audio.Media.IS_RINGTONE, isRingt);
@@ -209,19 +209,22 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         }
         if (call.method.equals("setRingtone")) {
             String path = call.argument("path");
-            setThings(path, true, false, false);
+            String downloadedMimeType = call.argument("mimeType");
+            setThings(path, downloadedMimeType, true, false, false);
 
             result.success(true);
             return;
         } else if (call.method.equals("setNotification")) {
             String path = call.argument("path");
-            setThings(path, false, true, false);
+            String downloadedMimeType = call.argument("mimeType");
+            setThings(path, downloadedMimeType, false, true, false);
 
             result.success(true);
             return;
         } else if (call.method.equals("setAlarm")) {
             String path = call.argument("path");
-            setThings(path, false, false, true);
+            String downloadedMimeType = call.argument("mimeType");
+            setThings(path, downloadedMimeType, false, false, true);
 
             result.success(true);
             return;

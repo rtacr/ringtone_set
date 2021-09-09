@@ -23,6 +23,18 @@ Future<bool> setFromAsset({
   return result;
 }
 
+/// Parses mimeType from the "content-type" header of [response].
+Future<String?> parseMimeType(http.Response response) async {
+  final headers = response.headers;
+  final contentTypeHeader = headers["content-type"];
+  String? mimeType;
+  if (contentTypeHeader != null) {
+    final contentType = ContentType.parse(contentTypeHeader);
+    mimeType = contentType.mimeType;
+  }
+  return mimeType;
+}
+
 /// Sets [action] from network URL.
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
@@ -35,8 +47,12 @@ Future<bool> setFromNetwork({
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
     await file.writeAsBytes(response.bodyBytes);
+    final mimeType = await parseMimeType(response);
 
-    final bool result = await setFromFile(file: file, action: action);
+    final bool result = await _channel.invokeMethod(
+      action,
+      {"path": file.path, "mimeType": mimeType},
+    );
 
     return result;
   } else {
