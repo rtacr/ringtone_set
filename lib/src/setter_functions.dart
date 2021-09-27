@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:ringtone_set/ringtone_set.dart';
 
 const MethodChannel _channel = const MethodChannel('ringtone_set');
 
@@ -12,9 +13,18 @@ const MethodChannel _channel = const MethodChannel('ringtone_set');
 Future<bool> setFromAsset({
   required String asset,
   required String action,
+  // TODO: remove
+  required StorageDirectory storageDirectoryType,
 }) async {
-  final path =
-      '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
+  final path = await getPath(
+    src: asset,
+    storageDirectoryType: storageDirectoryType,
+  );
+
+  // final path = '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
+
+  // print("PATH $path");
+
   final file = File(path);
   final loadedAsset = await rootBundle.load(asset);
   await file.writeAsBytes((loadedAsset).buffer.asUint8List());
@@ -41,8 +51,14 @@ Future<String?> parseMimeType(http.Response response) async {
 Future<bool> setFromNetwork({
   required String url,
   required String action,
+  // TODO: remove
+  required StorageDirectory storageDirectoryType,
 }) async {
-  final path = '${(await getTemporaryDirectory()).path}/${url.split('/').last}';
+  // final path = '${(await getTemporaryDirectory()).path}/${url.split('/').last}';
+  final path = await getPath(
+    src: url,
+    storageDirectoryType: storageDirectoryType,
+  );
   final file = File(path);
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
@@ -62,6 +78,27 @@ Future<bool> setFromNetwork({
   }
 }
 
+// TODO: refactor
+Future<String> getPath({
+  required String src,
+  required StorageDirectory storageDirectoryType,
+}) async {
+  final int sdk = await RingtoneSet.platformSdk;
+
+  if (sdk >= 29) {
+    // Android 10 or newer
+    return '${(await getTemporaryDirectory()).path}/${src.split('/').last}';
+  } else {
+    // Android 9 or older
+    final ringtoneDirectories = await getExternalStorageDirectories(
+      type: storageDirectoryType,
+    );
+    final directory = ringtoneDirectories!.first.path;
+    return '$directory/${src.split('/').last}';
+  }
+}
+
+// TODO: test for Android 9 or older
 /// Sets [action] from file.
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.

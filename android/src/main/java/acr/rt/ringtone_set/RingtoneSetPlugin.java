@@ -310,6 +310,9 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
         }
+        if (call.method.equals("getPlatformSdk")) {
+            result.success(android.os.Build.VERSION.SDK_INT);
+        }
         if (call.method.equals("setRingtone")) {
             String path = call.argument("path");
             String downloadedMimeType = call.argument("mimeType");

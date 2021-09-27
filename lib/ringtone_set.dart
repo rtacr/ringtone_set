@@ -2,16 +2,23 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:ringtone_set/src/setter_functions.dart';
 
 /// A class for setting ringtones, notifications, alarms.
 class RingtoneSet {
   static const MethodChannel _channel = const MethodChannel('ringtone_set');
 
-  /// Android SDK version code.
+  /// Android version.
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
+  }
+
+  /// Android SDK version code.
+  static Future<int> get platformSdk async {
+    final int sdk = await _channel.invokeMethod('getPlatformSdk');
+    return sdk;
   }
 
   /// Status of the `WRITE_SETTINGS` permission.
@@ -25,12 +32,20 @@ class RingtoneSet {
 
   /// Sets ringtone from asset.
   static Future<bool> setRingtone(String asset) async {
-    return setFromAsset(asset: asset, action: 'setRingtone');
+    return setFromAsset(
+      asset: asset,
+      action: 'setRingtone',
+      storageDirectoryType: StorageDirectory.ringtones,
+    );
   }
 
   /// Sets ringtone from network URL.
   static Future<bool> setRingtoneFromNetwork(String url) async {
-    return setFromNetwork(url: url, action: 'setRingtone');
+    return setFromNetwork(
+      url: url,
+      action: 'setRingtone',
+      storageDirectoryType: StorageDirectory.ringtones,
+    );
   }
 
   /// Sets ringtone from file.
@@ -40,12 +55,20 @@ class RingtoneSet {
 
   /// Sets notification from asset path.
   static Future<bool> setNotification(String asset) async {
-    return setFromAsset(asset: asset, action: 'setNotification');
+    return setFromAsset(
+      asset: asset,
+      action: 'setNotification',
+      storageDirectoryType: StorageDirectory.notifications,
+    );
   }
 
   /// Sets notification from network URL.
   static Future<bool> setNotificationFromNetwork(String url) async {
-    return setFromNetwork(url: url, action: 'setNotification');
+    return setFromNetwork(
+      url: url,
+      action: 'setNotification',
+      storageDirectoryType: StorageDirectory.notifications,
+    );
   }
 
   /// Sets notification from file.
@@ -55,12 +78,20 @@ class RingtoneSet {
 
   /// Sets alarm from asset path.
   static Future<bool> setAlarm(String asset) async {
-    return setFromAsset(asset: asset, action: 'setAlarm');
+    return setFromAsset(
+      asset: asset,
+      action: 'setAlarm',
+      storageDirectoryType: StorageDirectory.alarms,
+    );
   }
 
   /// Sets alarm from network URL.
   static Future<bool> setAlarmFromNetwork(String url) async {
-    return setFromNetwork(url: url, action: 'setAlarm');
+    return setFromNetwork(
+      url: url,
+      action: 'setAlarm',
+      storageDirectoryType: StorageDirectory.alarms,
+    );
   }
 
   /// Sets alarm from file.
