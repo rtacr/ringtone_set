@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:ringtone_set/src/setter_functions.dart';
 
 /// A class for setting ringtones, notifications, alarms.
@@ -35,7 +34,6 @@ class RingtoneSet {
     return setFromAsset(
       asset: asset,
       action: 'setRingtone',
-      storageDirectoryType: StorageDirectory.ringtones,
     );
   }
 
@@ -44,13 +42,15 @@ class RingtoneSet {
     return setFromNetwork(
       url: url,
       action: 'setRingtone',
-      storageDirectoryType: StorageDirectory.ringtones,
     );
   }
 
   /// Sets ringtone from file.
   static Future<bool> setRingtoneFromFile(File file) async {
-    return setFromFile(file: file, action: 'setRingtone');
+    return setFromFile(
+      file: file,
+      action: 'setRingtone',
+    );
   }
 
   /// Sets notification from asset path.
@@ -58,7 +58,6 @@ class RingtoneSet {
     return setFromAsset(
       asset: asset,
       action: 'setNotification',
-      storageDirectoryType: StorageDirectory.notifications,
     );
   }
 
@@ -67,13 +66,15 @@ class RingtoneSet {
     return setFromNetwork(
       url: url,
       action: 'setNotification',
-      storageDirectoryType: StorageDirectory.notifications,
     );
   }
 
   /// Sets notification from file.
   static Future<bool> setNotificationFromFile(File file) async {
-    return setFromFile(file: file, action: 'setNotification');
+    return setFromFile(
+      file: file,
+      action: 'setNotification',
+    );
   }
 
   /// Sets alarm from asset path.
@@ -81,7 +82,6 @@ class RingtoneSet {
     return setFromAsset(
       asset: asset,
       action: 'setAlarm',
-      storageDirectoryType: StorageDirectory.alarms,
     );
   }
 
@@ -90,12 +90,14 @@ class RingtoneSet {
     return setFromNetwork(
       url: url,
       action: 'setAlarm',
-      storageDirectoryType: StorageDirectory.alarms,
     );
   }
 
   /// Sets alarm from file.
   static Future<bool> setAlarmFromFile(File file) async {
-    return setFromFile(file: file, action: 'setAlarm');
+    return setFromFile(
+      file: file,
+      action: 'setAlarm',
+    );
   }
 }

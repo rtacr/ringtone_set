@@ -13,18 +13,11 @@ const MethodChannel _channel = const MethodChannel('ringtone_set');
 Future<bool> setFromAsset({
   required String asset,
   required String action,
-  // TODO: remove
-  required StorageDirectory storageDirectoryType,
 }) async {
-  final path = await getPath(
+  final path = await _getPath(
     src: asset,
-    storageDirectoryType: storageDirectoryType,
+    storageDirectoryType: _getStorageDirectoryType(action),
   );
-
-  // final path = '${(await getTemporaryDirectory()).path}/${asset.split('/').last}';
-
-  // print("PATH $path");
-
   final file = File(path);
   final loadedAsset = await rootBundle.load(asset);
   await file.writeAsBytes((loadedAsset).buffer.asUint8List());
@@ -33,37 +26,22 @@ Future<bool> setFromAsset({
   return result;
 }
 
-/// Parses mimeType from the "content-type" header of [response].
-Future<String?> parseMimeType(http.Response response) async {
-  final headers = response.headers;
-  final contentTypeHeader = headers["content-type"];
-  String? mimeType;
-  if (contentTypeHeader != null) {
-    final contentType = ContentType.parse(contentTypeHeader);
-    mimeType = contentType.mimeType;
-  }
-  return mimeType;
-}
-
 /// Sets [action] from network URL.
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
 Future<bool> setFromNetwork({
   required String url,
   required String action,
-  // TODO: remove
-  required StorageDirectory storageDirectoryType,
 }) async {
-  // final path = '${(await getTemporaryDirectory()).path}/${url.split('/').last}';
-  final path = await getPath(
+  final path = await _getPath(
     src: url,
-    storageDirectoryType: storageDirectoryType,
+    storageDirectoryType: _getStorageDirectoryType(action),
   );
   final file = File(path);
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
     await file.writeAsBytes(response.bodyBytes);
-    final mimeType = await parseMimeType(response);
+    final mimeType = await _parseMimeType(response);
 
     final bool result = await _channel.invokeMethod(
       action,
@@ -78,8 +56,17 @@ Future<bool> setFromNetwork({
   }
 }
 
-// TODO: refactor
-Future<String> getPath({
+/// Returns path for storing ringtone/notification/alarm sound.
+///
+/// On Android 10 or newer, the path is in the temporary directory.
+/// On older Android versions, the path is in one of the external storage
+/// directories.
+///
+/// [src] can be an asset path or a URL.
+///
+/// [storageDirectoryType] should be [StorageDirectory.ringtones],
+/// [StorageDirectory.notifications], [StorageDirectory.alarms].
+Future<String> _getPath({
   required String src,
   required StorageDirectory storageDirectoryType,
 }) async {
@@ -98,7 +85,34 @@ Future<String> getPath({
   }
 }
 
-// TODO: test for Android 9 or older
+/// Returns the temporary directory type according to action.
+///
+/// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
+StorageDirectory _getStorageDirectoryType(String action) {
+  if (action == "setRingtone") {
+    return StorageDirectory.ringtones;
+  }
+  if (action == "setNotification") {
+    return StorageDirectory.notifications;
+  }
+  if (action == "setAlarm") {
+    return StorageDirectory.alarms;
+  }
+  throw Exception("Unknown set action!");
+}
+
+/// Parses mimeType from the "content-type" header of [response].
+Future<String?> _parseMimeType(http.Response response) async {
+  final headers = response.headers;
+  final contentTypeHeader = headers["content-type"];
+  String? mimeType;
+  if (contentTypeHeader != null) {
+    final contentType = ContentType.parse(contentTypeHeader);
+    mimeType = contentType.mimeType;
+  }
+  return mimeType;
+}
+
 /// Sets [action] from file.
 ///
 /// [action] can be `"setRingtone"`, `"setNotification"`, `"setAlarm"`.
