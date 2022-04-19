@@ -70,7 +70,7 @@ Future<String> _getPath({
   required String src,
   required StorageDirectory storageDirectoryType,
 }) async {
-  final int sdk = await RingtoneSet.platformSdk;
+  final int sdk = await _channel.invokeMethod('getPlatformSdk');//await RingtoneSet.platformSdk;
 
   if (sdk >= 29) {
     // Android 10 or newer
