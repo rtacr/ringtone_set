@@ -34,7 +34,7 @@ Future<bool> setFromNetwork({
   required String action,
 }) async {
   final path = await _getPath(
-    src: url,
+    src: url.hashCode.toString(),
     storageDirectoryType: _getStorageDirectoryType(action),
   );
   final file = File(path);
