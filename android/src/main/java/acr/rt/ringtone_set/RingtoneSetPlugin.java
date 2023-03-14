@@ -1,17 +1,17 @@
 package acr.rt.ringtone_set;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.webkit.MimeTypeMap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
-
-import io.flutter.embedding.engine.plugins.FlutterPlugin;
-
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.plugin.common.BinaryMessenger;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -20,19 +20,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import android.Manifest;
-import android.content.Intent;
-import android.database.Cursor;
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContentUris;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.content.ContentValues;
-import android.os.Build;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.webkit.MimeTypeMap;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /**
  * RingtoneSetPlugin
@@ -309,11 +303,11 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
-        }
-        if (call.method.equals("getPlatformSdk")) {
+            return;
+        } else if (call.method.equals("getPlatformSdk")) {
             result.success(android.os.Build.VERSION.SDK_INT);
-        }
-        if (call.method.equals("setRingtone")) {
+            return;
+        }else if (call.method.equals("setRingtone")) {
             String path = call.argument("path");
             String downloadedMimeType = call.argument("mimeType");
             setThings(path, downloadedMimeType, true, false, false);
@@ -337,9 +331,10 @@ public class RingtoneSetPlugin implements FlutterPlugin, MethodCallHandler {
         } else if (call.method.equals("isWriteGranted")) {
             boolean granted = isSystemWritePermissionGranted();
             result.success(granted);
+        }else {
+            result.notImplemented();
         }
 
-        result.notImplemented();
     }
 
     @Override
