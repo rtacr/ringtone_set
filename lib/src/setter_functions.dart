@@ -38,7 +38,7 @@ Future<bool> setFromNetwork({
     storageDirectoryType: _getStorageDirectoryType(action),
   );
   final file = File(path);
-  final response = await http.get(Uri.parse(url));
+  final response = await http.get(Uri.parse(Uri.encodeFull(url)));
   if (response.statusCode == 200) {
     await file.writeAsBytes(response.bodyBytes);
     final mimeType = await _parseMimeType(response);
