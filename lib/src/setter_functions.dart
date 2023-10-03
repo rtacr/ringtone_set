@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:ringtone_set/ringtone_set.dart';
 
 const MethodChannel _channel = const MethodChannel('ringtone_set');
 
@@ -38,7 +37,12 @@ Future<bool> setFromNetwork({
     storageDirectoryType: _getStorageDirectoryType(action),
   );
   final file = File(path);
-  final response = await http.get(Uri.parse(Uri.encodeFull(url)));
+
+  // Firebase files are returned with encoding. Double encoding
+  // will cause an error.
+  final uri = Uri.tryParse(url) ?? Uri.parse(Uri.encodeFull(url));
+
+  final response = await http.get(uri);
   if (response.statusCode == 200) {
     await file.writeAsBytes(response.bodyBytes);
     final mimeType = await _parseMimeType(response);
